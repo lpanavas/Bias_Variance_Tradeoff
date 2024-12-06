@@ -1,0 +1,7 @@
+streamlit==1.39.0
+geopandas==1.0.1
+pandas==2.2.3
+requests==2.32.3
+plotly==5.24.1
+matplotlib==3.9.2
+streamlit-extras==0.5.0
