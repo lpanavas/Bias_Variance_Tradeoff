@@ -289,7 +289,7 @@ with col2:
             margin={"r": 0, "t": 50, "l": 0, "b": 0}  # Remove extra margins
         )
 
-    elif analysis_type == "Relative Error Non English Speaking":
+    elif analysis_type == "Relative Error Limited English Proficient":
         relative_error_vaclep = {
             county_mapping.get(name, name): error for name, error in results["relative_error_vaclep"].items()
         }
