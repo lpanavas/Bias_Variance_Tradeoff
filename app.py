@@ -45,6 +45,8 @@ with st.sidebar:
           - The percentage of limited english proficient individuals exceeds 5% of the total population, OR
           - The number of limited english proficient individuals exceeds 10,000, AND
           - The illiteracy rate among these individuals is greater than 1.31%.
+        
+        For this simulation, the real data is the Census Public Use data.
 
         **Metrics:**
         - **Drop Rate:** Counties incorrectly not classified as needing assistance.
@@ -181,7 +183,7 @@ gdf_counties = gpd.read_file(geojson_path)
     
 st.header("Voting Rights Act Coverage under DP")
 st.write("""
-This visualization tool allows you to explore how differential privacy affects the determination of language assistance requirements under the Voting Rights Act. Adjust the privacy settings using the controls on the left to see how changes in epsilon, mechanism, and languages spoken impact the coverage of counties. The map will dynamically update to show counties that might be incorrectly excluded or included based on your settings. Use this to understand the trade-offs between parameter setting decisions and accuracy in differential privacy implementations.
+This visualization tool allows you to explore how differential privacy affects the determination of language assistance requirements under the [Voting Rights Act](https://www.justice.gov/crt/language-minority-citizens). Based on certain criteria (number of limited english proficient or illiterate individuals), the federal government must provide language assistance materials to different counties. If we release this data with differential privacy, some counties may be incorrectly classified because of the noise added by differential privacy. In this interface, you can examine the implementation decisions that need to be made using the controls on the left to see how changes in epsilon, mechanism, and languages spoken impact the coverage of counties. The map will dynamically update to show counties that might be incorrectly excluded or included based on your settings. Use this to understand the trade-offs between parameter setting decisions and accuracy in differential privacy implementations.
 """)
 col1, col2, col3 = st.columns([1, 2, 1])
 
