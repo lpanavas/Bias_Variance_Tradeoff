@@ -20,21 +20,21 @@ st.sidebar.title("Navigation")
 with st.sidebar:
     with st.expander("Background"):
         st.markdown("""
-        The **Voting Rights Act**, federal legislation from 1965, provides protections for racial and language minorities. Section 203 specifies conditions under which local jurisdictions must offer language assistance during elections. Each jurisdiction is evaluated for each of 72 minority languages. If criteria are met, they must provide all election materials in the minority language.
+        The **Voting Rights Act**, federal legislation from 1965, provides protections for racial and language minorities. Section 203 specifies conditions under which local jurisdictions must offer language assistance during elections. Each jurisdiction is evaluated for each of 72 minority languages. If criteria are met, they must provide all election materials in the minority language. Read more here: [Background](https://www.justice.gov/crt/language-minority-citizens), [Public Use File](https://www.census.gov/data/datasets/2021/dec/rdo/section-203-determinations.html)
         
-        **To demonstrate** how differential privacy can be used, a synthetic dataset was created based off of the Census Public use files. Your task is to experiment with different implementation decisions to determine how differential privacy affects the accuracy of the release dataset.
+        **To demonstrate** how differential privacy can be used, a synthetic dataset was created based off of the real Census Public use files. The underlying data was made purely for demonstration purposes. Your task is to experiment with different implementation decisions to determine how differential privacy affects the accuracy of the release dataset.
 
         """)
 
     with st.expander("Dataset Description"):
         st.markdown("""
-        The U.S. Census Bureau has released public use files that detail the data used to determine these requirements. A synthetic dataset was created based on these files to illustrate how differential privacy can be applied.
+        The U.S. Census Bureau has released public use files that detail the data used to determine the language assistance requirements. The dataset uses shows aggregated counts. A synthetic record level dataset was created based on these files to illustrate how differential privacy can be applied.
         This dataset contains individuals' answers to:
-        1. **Do they speak primarily a language other than English?**
-        2. **What languages other than English do they speak?**
-        3. **Do they have above a 5th grade education level?**
+        1. **Do they speak primarily a language other than English? (Limited English Proficient)**
+        2. **What languages other than English do they speak? (Number of Languages Spoken)**
+        3. **Do they have above a 5th grade education level? (Illiteracy)**
         
-        These factors determine if a county receives minority language assistance. For a detailed description, please examine the linked paper or the public use file record.
+        These factors determine if a county receives minority language assistance. For a detailed description, please examine this [paper](https://dl.acm.org/doi/pdf/10.1145/3351095.3372872) or the [public use file record](https://www.census.gov/data/datasets/2021/dec/rdo/section-203-determinations.html).
         
         """)
 
@@ -42,21 +42,21 @@ with st.sidebar:
         st.markdown("""
         **How Coverage is Determined:**
         - A county is covered under the Voting Rights Act if:
-          - The percentage of non-English speaking individuals exceeds 5% of the total population, OR
-          - The number of non-English speaking individuals exceeds 10,000, AND
+          - The percentage of limited english proficient individuals exceeds 5% of the total population, OR
+          - The number of limited english proficient individuals exceeds 10,000, AND
           - The illiteracy rate among these individuals is greater than 1.31%.
 
         **Metrics:**
         - **Drop Rate:** Counties incorrectly not classified as needing assistance.
         - **Spurious Rate:** Counties incorrectly classified as needing assistance.
-        - **Average Relative Error for Non English Speaking Individuals:** The average percentage difference between actual and DP-estimated counts.
+        - **Average Relative Error for Limited English Proficient Individuals:** The average percentage difference between actual and DP-estimated counts for limited english proficient individuals.
         - **Average Relative Error for Illiterate Individuals:** The average percentage difference between actual and DP-estimated counts of illiterate individuals.
         """)
 
     with st.expander("Implementation Decisions"):
         st.markdown("""
         - **Epsilon:** Privacy budget where lower values increase privacy but decrease accuracy.
-        - **Mechanism:** Noise application method (Laplace or Gaussian).
+        - **Mechanism:** Noise application method (Laplace or Gaussian). Delta for Gaussian is set to 1e-5.
         - **Max Languages Spoken:** Limits the maximum contribution for number of languages a user can speak. 
         """)
 
@@ -181,7 +181,7 @@ gdf_counties = gpd.read_file(geojson_path)
     
 st.header("Voting Rights Act Coverage under DP")
 st.write("""
-This visualization tool allows you to explore how differential privacy affects the determination of language assistance requirements under the Voting Rights Act. Adjust the privacy settings using the controls on the left to see how changes in epsilon, mechanism, and language limits impact the coverage of counties. The map will dynamically update to show counties that might be incorrectly excluded or included based on your settings. Use this to understand the trade-offs between privacy and accuracy in data protection scenarios.
+This visualization tool allows you to explore how differential privacy affects the determination of language assistance requirements under the Voting Rights Act. Adjust the privacy settings using the controls on the left to see how changes in epsilon, mechanism, and languages spoken impact the coverage of counties. The map will dynamically update to show counties that might be incorrectly excluded or included based on your settings. Use this to understand the trade-offs between parameter setting decisions and accuracy in differential privacy implementations.
 """)
 col1, col2, col3 = st.columns([1, 2, 1])
 
@@ -235,8 +235,8 @@ results = {
 with col2:
     # Add radio buttons at the top for analysis selection
     analysis_type = st.radio(
-        "Select Analysis Type",
-        ["Drop and Spurious Rate", "Relative Error Non English Speaking", "Relative Error Illiterate"],
+        "Select Accuracy Metric",
+        ["Drop and Spurious Rate", "Relative Error Limited English Proficient", "Relative Error Illiterate"],
         help="Choose what to visualize: counties that lost or gained coverage due to DP or the relative errors."
     )
     geojson = gdf_counties.__geo_interface__
@@ -309,7 +309,7 @@ with col2:
             mapbox_style="carto-positron",
             center={"lat": 64.2008, "lon": -160.4937},
             zoom=2,  # Zoom out slightly
-            title="Relative Error Non English Speaking (Max 100%)"
+            title="Relative Error Limited English Proficient (Max 100%)"
         )
 
         fig.update_layout(margin={"r": 0, "t": 50, "l": 0, "b": 0})  # Remove extra margins
@@ -349,7 +349,7 @@ with col3:
     unique_spurious_count = len(results['spurious_counties'])
     st.subheader("Accuracy Metrics")
     error_metrics = {
-        "Metric": ["Drop Rate", "Spurious Rate", "Avg. Error Non English Speaking", "Avg. Error Illiterate"],
+        "Metric": ["Drop Rate", "Spurious Rate", "Avg. Error Limited English Proficient", "Avg. Error Illiterate"],
         "Value": [unique_drop_count, unique_spurious_count, f"{results['average_relative_error_vaclep']}%", f"{results['average_relative_error_illit']}%"]
     }
     
